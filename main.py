@@ -159,69 +159,59 @@ print("T-invariants analysis")
 b=np.zeros(int(p)); 
 
 
-#CMatrix = np.squeeze(np.asarray(CMatrix)); 
-#CMatrix=CMatrix.transpose(); 
-#print("CMatrix transposed first time\n",CMatrix); 
+print("CMatrix: \n",CMatrix); 
 
-#CMatrix = np.vstack([CMatrix, b]);
-#print("CMatrix with zeros\n",CMatrix); 
+pl, tInvMatrix = lu(CMatrix, permute_l=True)
+tInvMatrix=scipy.optimize._remove_redundancy._remove_redundancy(tInvMatrix, np.zeros_like(tInvMatrix[:, 0]))[0] #Remove equal rows
 
+tInvMatrix=tInvMatrix[~(tInvMatrix==0).all(1)]#remove all zeros rows
+print("Cmatrix after gaussian elimination:\n", tInvMatrix)
 
-#CMatrix=CMatrix.transpose(); 
-
-#CMatrix=scipy.optimize._remove_redundancy._remove_redundancy(CMatrix, np.zeros_like(CMatrix[:, 0]))[0]
- 
-print("CMatrix system \n",CMatrix); #TODO Wrong transformations, work on it 
-
-pl, u = lu(CMatrix, permute_l=True)
-u=scipy.optimize._remove_redundancy._remove_redundancy(u, np.zeros_like(u[:, 0]))[0] #Remove equal rows
-
-
-#print("Cmatrix equal lines optimized\n", u)
-
-u=u[~(u==0).all(1)]#remove all zeros rows
-print("Cmatrix all zeroes eliminated:\n", u)
-
-kernelRank=np.linalg.matrix_rank(u, tol=None, hermitian=False)
+kernelRank=np.linalg.matrix_rank(tInvMatrix, tol=None, hermitian=False)
 
 
 if((t-kernelRank)>0): 
-	print ("\nThe system has inf ^", (t-kernelRank))
-	print("solutions, it means at least a T-invariant exixts, so the P-net COULD NOT be reversible, we should explore the marking graph to be sure about reversibility\n")
-	#With more time I can implement a BFS here to explore the graph
+	print ("\nThe system has inf ^", (t-kernelRank),"solutions, it means at least a T-invariant exixts, so the P-net COULD NOT be reversible, we should explore the marking graph to be sure about reversibility\n")
+	
+#With more time I can implement a BFS here to explore the graph
 
 
 #P-Invariant analysis, from theory, P-invariants are the generators of the Kernel space of for the transposed C matrix, if the sum of the n p-invariants is a p-invariant, the net is conservative (strictly conservative for p-inv=[1,1,1,1,1,1]). If conservative the net is also limited. The tokens in one place will never be more than k, with k <inf. 
 
-CMatrix=CMatrix.transpose(); 
-pl, pInvOptimization = lu(CMatrix, permute_l=True)
+
+print("P-invariants analysis")
+pMatrix=CMatrix.transpose(); 
+print("transposed matrix\n", pMatrix)
+
+
+pl, pInvOptimization = lu(pMatrix, permute_l=True)
+print("right after gaussian\n",pInvOptimization)
 pInvOptimization=scipy.optimize._remove_redundancy._remove_redundancy(CMatrix, np.zeros_like(CMatrix[:, 0]))[0]
+
 pInvOptimization=pInvOptimization[~(pInvOptimization==0).all(1)]
-print("Cmatrix for the ")
+
+print("Gaussian reduction for P matrix\n",pInvOptimization )
 
 
-ns=nullspace(CMatrix)
-ns=scipy.optimize._remove_redundancy._remove_redundancy(ns, np.zeros_like(ns[:, 0]))[0]
+kernelRankP=np.linalg.matrix_rank(pInvOptimization, tol=None, hermitian=False)
 
-print("Result for p inv:\n ", ns)
+print("\n P invariant system has inf ^", (t-kernelRankP),"solutions\n")
+
+print("result",scipy.linalg.null_space(pInvOptimization, rcond=None))
+
+#ns=nullspace(CMatrix)
+#ns=scipy.optimize._remove_redundancy._remove_redundancy(ns, np.zeros_like(ns[:, 0]))[0]
+
+
+#print("Result for p inv:\n ", ns)
 
 
 #print("basis columns:\n", basis_columns )
-
-
-
-
-
-
-
 
   
 
 #CPinv= np.linalg.pinv(CMatrix); 
 #TInvariants = CPinv.dot(b)
-
-
-#print("The T invariants are: ", TInvariants); 
 
 
 	
