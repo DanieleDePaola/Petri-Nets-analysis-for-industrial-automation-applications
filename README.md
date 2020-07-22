@@ -16,5 +16,5 @@ I thought it could be really interesting to create a program that gets in input 
 Different analysis performed (still work in progress) are: 
 - Is the net a FSM? Is a marked graph?
 - T-invariants and reversibility
-- P-invariants and limitedness (still in progress)
-- Marking tree exploration (still in progress)
+- P-invariants and boundedness (still in progress)
+- Marking tree exploration for liveness(still in progress)
