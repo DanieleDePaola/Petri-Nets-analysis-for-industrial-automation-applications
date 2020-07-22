@@ -208,32 +208,32 @@ for i in range(int(p)):
 
 
 print("Matrix sol\n",MatrixSol); 
-print("Pivot sol\n", PivotSol); 
+print("Pivot Columns\n", PivotSol); 
 
 print("free parameters\n", freeParameters); 
 
 kernelBasis=[]
 
-#I want to find the expression for non-free parameters, i search for the row in which I can find that 
+#I want to find the expression for non-free parameters, i search for the row in which I can find that. 
 for j in range(int(p)): 
 	if j in freeParameters: 
-		kernelBasis.append("x "+ str(j))
+		kernelBasis.append("x"+ str(j))
 	else: 
 		for k in range(int(t)): 
 			if MatrixSol[k][j] == 1: 
-				indexRow=k; 
+				indexRow=k;
+				break;  
 		
 		stringExpression= []
-		for m in range(j,p):
-			stringExpression.append("x")
+		for m in range(j+1,p):
+			if MatrixSol[indexRow,m] != 0:  
+				stringExpression.append("-("+str(MatrixSol[indexRow,m])+")x"+str(m)); 
+
+		kernelBasis.append(stringExpression); 
 
 print("Kernel Basis:\n", kernelBasis)
 
 
-
-
-		
-	
 
 #pInvOptimization=scipy.optimize._remove_redundancy._remove_redundancy(CMatrix, np.zeros_like(CMatrix[:, 0]))[0]
 
