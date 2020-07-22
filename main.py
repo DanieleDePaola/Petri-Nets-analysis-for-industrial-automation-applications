@@ -2,6 +2,9 @@ import numpy as np
 from scipy.linalg import lu
 import scipy.optimize
 from numpy.linalg import svd
+import sympy
+from sympy import *
+from sympy import Matrix
 
 def nullspace(A, atol=1e-13, rtol=0):
     A = np.atleast_2d(A)
@@ -178,26 +181,72 @@ if((t-kernelRank)>0):
 
 #P-Invariant analysis, from theory, P-invariants are the generators of the Kernel space of for the transposed C matrix, if the sum of the n p-invariants is a p-invariant, the net is conservative (strictly conservative for p-inv=[1,1,1,1,1,1]). If conservative the net is also limited. The tokens in one place will never be more than k, with k <inf. 
 
-
+#transpose cmatrix
 print("P-invariants analysis")
 pMatrix=CMatrix.transpose(); 
 print("transposed matrix\n", pMatrix)
 
 
-pl, pInvOptimization = lu(pMatrix, permute_l=True)
-print("right after gaussian\n",pInvOptimization)
-pInvOptimization=scipy.optimize._remove_redundancy._remove_redundancy(CMatrix, np.zeros_like(CMatrix[:, 0]))[0]
+#pl, pInvOptimization = lu(pMatrix, permute_l=True)
 
-pInvOptimization=pInvOptimization[~(pInvOptimization==0).all(1)]
+#calculate rref form for cm matrix transposed and find kernel basis
+pMatrix = Matrix(pMatrix); 
+pInvMatrix_rref=pMatrix.rref();
+print("rref form for C matrix transposed\n",pInvMatrix_rref)
 
-print("Gaussian reduction for P matrix\n",pInvOptimization )
+MatrixSol=pInvMatrix_rref[0]
+PivotSol=pInvMatrix_rref[1]
+MatrixSol= np.array(MatrixSol);
+PivotSol= np.array(PivotSol); 
 
 
-kernelRankP=np.linalg.matrix_rank(pInvOptimization, tol=None, hermitian=False)
+#find free parameters
+freeParameters=[]
+for i in range(int(p)):
+	if i not in PivotSol:
+		freeParameters.append(i); 
 
-print("\n P invariant system has inf ^", (t-kernelRankP),"solutions\n")
 
-print("result",scipy.linalg.null_space(pInvOptimization, rcond=None))
+print("Matrix sol\n",MatrixSol); 
+print("Pivot sol\n", PivotSol); 
+
+print("free parameters\n", freeParameters); 
+
+kernelBasis=[]
+
+#I want to find the expression for non-free parameters, i search for the row in which I can find that 
+for j in range(int(p)): 
+	if j in freeParameters: 
+		kernelBasis.append("x "+ str(j))
+	else: 
+		for k in range(int(t)): 
+			if MatrixSol[k][j] == 1: 
+				indexRow=k; 
+		
+		stringExpression= []
+		for m in range(j,p):
+			stringExpression.append("x")
+
+print("Kernel Basis:\n", kernelBasis)
+
+
+
+
+		
+	
+
+#pInvOptimization=scipy.optimize._remove_redundancy._remove_redundancy(CMatrix, np.zeros_like(CMatrix[:, 0]))[0]
+
+#pInvOptimization=pInvOptimization[~(pInvOptimization==0).all(1)]
+
+#print("Gaussian reduction for P matrix\n",pInvOptimization )
+
+
+#kernelRankP=np.linalg.matrix_rank(pInvOptimization, tol=None, hermitian=False)
+
+#print("\n P invariant system has inf ^", (t-kernelRankP),"solutions\n")
+
+#print("result",scipy.linalg.null_space(pInvOptimization, rcond=None))
 
 #ns=nullspace(CMatrix)
 #ns=scipy.optimize._remove_redundancy._remove_redundancy(ns, np.zeros_like(ns[:, 0]))[0]
